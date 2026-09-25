@@ -1,0 +1,22 @@
+[tools]
+go = "1.26.5"
+
+[tasks.test]
+description = "Run the Go test suite"
+run = "go test ./..."
+
+[tasks.build]
+description = "Build the codex-netmon CLI"
+run = "go build -o dist/codex-netmon ."
+
+[tasks.run]
+description = "Monitor Codex Wi-Fi traffic in the foreground"
+run = "go run ."
+
+[tasks.service-start]
+description = "Build and start the optional macOS LaunchAgent"
+run = "sh ./scripts/launchd-start.sh"
+
+[tasks.service-stop]
+description = "Stop the optional macOS LaunchAgent"
+run = "sh ./scripts/launchd-stop.sh"
