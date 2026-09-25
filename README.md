@@ -14,7 +14,7 @@
 go install github.com/yudai2929/codex-netmon@latest
 ```
 
-If the installed command is not on your `PATH`, add `$(go env GOPATH)/bin` to `PATH`. To build from a checkout instead:
+Alternatively, download the macOS arm64 or amd64 archive from [GitHub Releases](https://github.com/yudai2929/codex-netmon/releases). If the `go install` command is not on your `PATH`, add `$(go env GOBIN)` when it is set, or `$(go env GOPATH)/bin` otherwise. To build from a checkout instead:
 
 ```sh
 mise install
