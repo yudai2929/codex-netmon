@@ -22,7 +22,6 @@ go install github.com/yudai2929/codex-netmon@latest
 To install with mise and use the short name `codex-netmon`, run:
 
 ```sh
-mise use -g go@1.26.5
 mise tool-alias set codex-netmon go:github.com/yudai2929/codex-netmon
 mise use -g codex-netmon
 ```
