@@ -19,13 +19,13 @@ The screenshot shows real measurements from a local Grafana session; your values
 go install github.com/yudai2929/codex-netmon@latest
 ```
 
-To install and manage `codex-netmon` with mise, run:
+To install with mise and use the short name `codex-netmon`, run:
 
 ```sh
-mise use -g go@1.26.5 go:github.com/yudai2929/codex-netmon@latest
+mise use -g go@1.26.5
+mise tool-alias set codex-netmon go:github.com/yudai2929/codex-netmon
+mise use -g codex-netmon
 ```
-
-This installs the Go toolchain and CLI, then adds both to your global mise configuration. In a source checkout, `mise install` installs the tools listed in that checkout's `mise.toml`; here, that is Go for development.
 
 Alternatively, download the macOS arm64 or amd64 archive from [GitHub Releases](https://github.com/yudai2929/codex-netmon/releases). If the `go install` command is not on your `PATH`, add `$(go env GOBIN)` when it is set, or `$(go env GOPATH)/bin` otherwise. To build from a checkout instead:
 
