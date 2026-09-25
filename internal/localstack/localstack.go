@@ -62,6 +62,29 @@ func (stack Stack) Start(ctx context.Context, assets fs.FS, stdout, stderr io.Wr
 	}, nil
 }
 
+func (stack Stack) Stop(ctx context.Context, stdout, stderr io.Writer) error {
+	if err := stack.Config.validate(); err != nil {
+		return err
+	}
+	configDir, err := stack.Config.configDir()
+	if err != nil {
+		return err
+	}
+	composePath := filepath.Join(configDir, "compose.yaml")
+	command := exec.CommandContext(ctx, "docker", "compose", "--project-name", composeProject, "--file", composePath, "down")
+	command.Dir = configDir
+	command.Env = append(os.Environ(),
+		fmt.Sprintf("GRAFANA_PORT=%d", stack.Config.GrafanaPort),
+		fmt.Sprintf("OTLP_PORT=%d", stack.Config.OTLPPort),
+	)
+	command.Stdout = stdout
+	command.Stderr = stderr
+	if err := command.Run(); err != nil {
+		return fmt.Errorf("stop local LGTM stack with Docker Compose: %w", err)
+	}
+	return nil
+}
+
 func (config Config) validate() error {
 	if config.GrafanaPort < 1 || config.GrafanaPort > 65535 {
 		return fmt.Errorf("Grafana port must be between 1 and 65535")
