@@ -3,6 +3,7 @@ module github.com/yudai2929/codex-netmon
 go 1.26.5
 
 require (
+	github.com/grafana/grafana-foundation-sdk/go v0.0.20
 	go.opentelemetry.io/otel v1.46.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.46.0
 	go.opentelemetry.io/otel/metric v1.46.0

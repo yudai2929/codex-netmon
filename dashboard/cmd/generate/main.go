@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	outputPath := flag.String("output", "../grafana/dashboards/codex-wifi.json", "Grafana dashboard JSON output path")
+	outputPath := flag.String("output", "grafana/dashboards/codex-netmon.json", "Grafana dashboard JSON output path")
 	flag.Parse()
 	if err := (dashboard.Generator{OutputPath: *outputPath}).Run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

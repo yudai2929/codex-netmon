@@ -65,10 +65,10 @@ func wifiMatrixQuery() string {
 	return strings.Join(parts, " or ")
 }
 
-func BuildWiFiDashboard() (resource.Manifest, error) {
+func BuildNetmonDashboard() (resource.Manifest, error) {
 	definition := Definition{
-		UID:         "codex-netmon-wifi",
-		Title:       "Codex Wi-Fi usage",
+		UID:         "codex-netmon",
+		Title:       "Codex netmon",
 		Description: "Wi-Fi usage attributed to Codex processes and commands launched by Codex, measured with macOS nettop. Change the time range in the upper right. Zero can mean no measurement in that range.",
 		Tags:        []string{"codex", "wifi", "local"},
 		Panels: []PanelDefinition{

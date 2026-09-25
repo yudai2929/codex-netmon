@@ -31,15 +31,11 @@ run = 'test -z "$(gofmt -l .)"'
 
 [tasks.lint]
 description = "Run Go static analysis for the CLI and dashboard generator"
-run = "go vet ./... && cd dashboard && go vet ./..."
+run = "go vet ./..."
 
 [tasks.dashboard]
-description = "Generate the Grafana Wi-Fi dashboard with the Go SDK"
-run = "cd dashboard && go run ./cmd/generate"
-
-[tasks.dashboard-test]
-description = "Test the dashboard generator"
-run = "cd dashboard && go test ./..."
+description = "Generate the Codex netmon Grafana dashboard with the Go SDK"
+run = "go run ./dashboard/cmd/generate"
 
 [tasks.up]
 description = "Start the optional local Grafana and OTLP receiver"
