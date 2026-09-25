@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -17,6 +18,13 @@ import (
 const defaultEndpoint = "http://127.0.0.1:4318/v1/metrics"
 
 func main() {
+	if err := run(); err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+}
+
+func run() (runErr error) {
 	var config netmon.Config
 	var startLocalStack bool
 	var grafanaPort, otlpPort int
@@ -31,10 +39,18 @@ func main() {
 	defer stop()
 
 	if startLocalStack {
-		info, err := (localstack.Stack{Config: localstack.Config{GrafanaPort: grafanaPort, OTLPPort: otlpPort}}).Start(ctx, localStackAssets, os.Stdout, os.Stderr)
+		stack := localstack.Stack{Config: localstack.Config{GrafanaPort: grafanaPort, OTLPPort: otlpPort}}
+		info, err := stack.Start(ctx, localStackAssets, os.Stdout, os.Stderr)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
+		defer func() {
+			shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			if err := stack.Stop(shutdownCtx, os.Stdout, os.Stderr); err != nil {
+				runErr = errors.Join(runErr, err)
+			}
+		}()
 		fmt.Fprintln(os.Stdout, "Local LGTM stack started.")
 		fmt.Fprintf(os.Stdout, "Grafana dashboard: %s\n", info.DashboardURL)
 		fmt.Fprintf(os.Stdout, "OTLP metrics endpoint: %s\n", info.OTLPEndpoint)
@@ -45,8 +61,9 @@ func main() {
 	}
 
 	if err := (netmon.Monitor{Config: config}).Run(ctx); err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
 func flagWasSet(name string) bool {

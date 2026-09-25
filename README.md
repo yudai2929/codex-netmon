@@ -43,7 +43,7 @@ To start the bundled local Grafana, Prometheus, and OTLP receiver with Docker Co
 codex-netmon -local-stack
 ```
 
-The command prints the dashboard URL and OTLP endpoint, then starts monitoring in the foreground. The Grafana dashboard opens at `http://127.0.0.1:3000`; a fresh local stack uses `admin` / `admin`. The stack keeps running after Ctrl-C; the command to stop it is printed at startup. If the default ports are in use, choose free ones with `-grafana-port` and `-otlp-port`, for example `codex-netmon -local-stack -grafana-port 3001 -otlp-port 4319`. If you pass `-endpoint`, the monitor continues to send metrics to that endpoint.
+The command prints the dashboard URL and OTLP endpoint, then starts monitoring in the foreground. The Grafana dashboard opens at `http://127.0.0.1:3000`; a fresh local stack uses `admin` / `admin`. Ctrl-C stops monitoring and runs `docker compose down` for the local stack. The named data volume remains so Grafana data is available the next time you start the stack. The manual stop command is also printed at startup in case the process is terminated without running its shutdown handler. If the default ports are in use, choose free ones with `-grafana-port` and `-otlp-port`, for example `codex-netmon -local-stack -grafana-port 3001 -otlp-port 4319`. If you pass `-endpoint`, the monitor continues to send metrics to that endpoint.
 
 For an optional per-user background service from a source checkout, run `mise run service-start`; use `mise run service-stop` to stop it. This LaunchAgent uses the default local endpoint and writes logs under `.run/` in the checkout.
 
