@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Semantic version to publish, without the v prefix
+        required: true
+        default: "0.2.0"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish v${{ inputs.version }}
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: jdx/mise-action@v4
+
+      - name: Validate release version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version must be in MAJOR.MINOR.PATCH format, without a v prefix." >&2
+            exit 1
+          fi
+          echo "RELEASE_TAG=v${VERSION}" >> "$GITHUB_ENV"
+
+      - name: Build macOS archives
+        run: |
+          set -euo pipefail
+          mkdir -p release
+
+          for arch in amd64 arm64; do
+            staging_dir="$(mktemp -d)"
+            GOOS=darwin GOARCH="$arch" CGO_ENABLED=0 mise exec -- go build -trimpath -ldflags="-s -w" -o "$staging_dir/codex-netmon" .
+            cp README.md LICENSE "$staging_dir/"
+            archive="release/codex-netmon_${RELEASE_TAG}_darwin_${arch}.tar.gz"
+            tar -czf "$archive" -C "$staging_dir" codex-netmon README.md LICENSE
+            rm -rf "$staging_dir"
+          done
+
+          cd release
+          sha256sum codex-netmon_*.tar.gz > checksums.txt
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$RELEASE_TAG" \
+            release/codex-netmon_"$RELEASE_TAG"_darwin_amd64.tar.gz \
+            release/codex-netmon_"$RELEASE_TAG"_darwin_arm64.tar.gz \
+            release/checksums.txt \
+            --target "$GITHUB_SHA" \
+            --title "codex-netmon $RELEASE_TAG" \
+            --generate-notes
