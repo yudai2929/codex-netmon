@@ -37,6 +37,14 @@ codex-netmon -endpoint http://127.0.0.1:4318/v1/metrics -interval 5s
 
 The endpoint above is the default. `-interval` controls both sampling and metric export and defaults to `5s`. Stop the foreground process with Ctrl-C. The tool runs only on macOS and needs access to the operating system's process and network information. If macOS prompts for permissions, grant only those required by your setup.
 
+To start the bundled local Grafana, Prometheus, and OTLP receiver with Docker Compose, add `-local-stack`:
+
+```sh
+codex-netmon -local-stack
+```
+
+The command prints the dashboard URL and OTLP endpoint, then starts monitoring in the foreground. The Grafana dashboard opens at `http://127.0.0.1:3000`; a fresh local stack uses `admin` / `admin`. The stack keeps running after Ctrl-C; the command to stop it is printed at startup. If the default ports are in use, choose free ones with `-grafana-port` and `-otlp-port`, for example `codex-netmon -local-stack -grafana-port 3001 -otlp-port 4319`. If you pass `-endpoint`, the monitor continues to send metrics to that endpoint.
+
 For an optional per-user background service from a source checkout, run `mise run service-start`; use `mise run service-stop` to stop it. This LaunchAgent uses the default local endpoint and writes logs under `.run/` in the checkout.
 
 ## Metrics

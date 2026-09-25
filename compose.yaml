@@ -5,8 +5,8 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "false"
       PROMETHEUS_EXTRA_ARGS: "--enable-feature=otlp-deltatocumulative"
     ports:
-      - "127.0.0.1:3000:3000"
-      - "127.0.0.1:4318:4318"
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+      - "127.0.0.1:${OTLP_PORT:-4318}:4318"
     volumes:
       - lgtm-data:/data
       - ./grafana/provisioning/dashboards:/otel-lgtm/grafana/conf/provisioning/dashboards:ro
