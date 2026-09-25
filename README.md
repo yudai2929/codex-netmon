@@ -7,6 +7,7 @@
 - macOS with the built-in `nettop` and `ps` commands
 - An OTLP/HTTP metrics receiver, such as OpenTelemetry Collector
 - Go 1.26.5 to build from source; [mise](https://mise.jdx.dev/) manages the development toolchain
+- Docker with Compose for the optional local Grafana stack
 
 ## Install
 
@@ -43,6 +44,27 @@ For an optional per-user background service from a source checkout, run `mise ru
 
 Each metric includes `process` (the executable name) and `process_kind` (`codex` or `command`). `codex` covers recognized Codex desktop, service, renderer, and CLI processes. `command` covers descendants launched by Codex command hosts. The metric resource has `service.name=codex-netmon`. Prometheus commonly exposes the counters as `codex_wifi_received_bytes_total` and `codex_wifi_sent_bytes_total`.
 
+## Grafana dashboard
+
+The optional [Codex Wi-Fi usage dashboard](grafana/dashboards/codex-wifi.json) shows total bytes, received and sent bytes by source, traffic over time, transfer rate, and usage by executable. The time picker controls the reporting range. The dashboard is generated in Go with the [Grafana Foundation SDK](dashboard/) and needs Grafana with a Prometheus data source named `prometheus`. The CLI itself only needs an OTLP/HTTP metrics receiver.
+
+![Codex Wi-Fi usage dashboard showing live local metrics](docs/images/codex-wifi-dashboard.png)
+
+The screenshot shows real measurements from a local Grafana session; your values will differ.
+
+For a ready-to-run local Grafana and OTLP receiver from a source checkout:
+
+```sh
+mise install
+mise run up
+mise run build
+./dist/codex-netmon
+```
+
+Open [Grafana at localhost:3000](http://127.0.0.1:3000) and find **Codex netmon / Codex Wi-Fi usage**. For a fresh local stack, sign in with `admin` / `admin` and change the password when prompted. Keep the CLI running to collect traffic, and use Ctrl-C to stop it. Run `mise run down` to stop the local stack. This setup binds Grafana and the OTLP endpoint to localhost. If those ports are already in use, stop the conflicting local service first or adjust the port mappings and CLI endpoint.
+
+To use an existing Grafana installation, import the dashboard JSON and select its `prometheus` data source, or provision it from [the included provider](grafana/provisioning/dashboards/provider.yaml). The dashboard generator runs with `mise run dashboard` and writes the JSON to `grafana/dashboards/codex-wifi.json`.
+
 For a Grafana time series of traffic over the selected interval, use `sum(increase(codex_wifi_received_bytes_total[$__rate_interval]))` and the matching `sent` expression. For a total over the selected time range, use `sum(increase(codex_wifi_received_bytes_total[$__range])) + sum(increase(codex_wifi_sent_bytes_total[$__range]))`. Use `process_kind="command"` to isolate commands launched by Codex.
 
 ## How attribution works
@@ -56,6 +78,10 @@ This is an estimate of traffic associated with Codex processes, not a packet-lev
 ```sh
 mise install
 mise run test
+mise run dashboard-test
+mise run lint
+mise run fmt-check
+mise run dashboard
 mise run build
 ```
 

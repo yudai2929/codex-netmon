@@ -20,3 +20,32 @@ run = "sh ./scripts/launchd-start.sh"
 [tasks.service-stop]
 description = "Stop the optional macOS LaunchAgent"
 run = "sh ./scripts/launchd-stop.sh"
+
+[tasks.fmt]
+description = "Format all Go source files"
+run = "gofmt -w ."
+
+[tasks.fmt-check]
+description = "Check Go source formatting"
+run = 'test -z "$(gofmt -l .)"'
+
+[tasks.lint]
+description = "Run Go static analysis for the CLI and dashboard generator"
+run = "go vet ./... && cd dashboard && go vet ./..."
+
+[tasks.dashboard]
+description = "Generate the Grafana Wi-Fi dashboard with the Go SDK"
+run = "cd dashboard && go run ./cmd/generate"
+
+[tasks.dashboard-test]
+description = "Test the dashboard generator"
+run = "cd dashboard && go test ./..."
+
+[tasks.up]
+description = "Start the optional local Grafana and OTLP receiver"
+depends = ["dashboard"]
+run = "docker compose up -d"
+
+[tasks.down]
+description = "Stop the optional local Grafana stack"
+run = "docker compose down"
